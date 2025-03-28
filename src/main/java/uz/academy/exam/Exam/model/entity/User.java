@@ -1,9 +1,6 @@
 package uz.academy.exam.Exam.model.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import uz.academy.exam.Exam.model.enums.UserRole;
 
@@ -19,6 +16,8 @@ public class User extends BaseUser {
     private String userName;
     private String password;
     private String email;
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String explanation;
     @Enumerated(EnumType.STRING)
     private UserRole role;
