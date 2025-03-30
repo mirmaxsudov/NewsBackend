@@ -36,7 +36,6 @@ public class IAttachmentService implements AttachmentService {
     private final AttachmentRepository attachmentRepository;
     private static final Logger log = LoggerFactory.getLogger(IAttachmentService.class);
 
-
     @Value("${file.base.url}")
     private String URL_TO_SAVE_FILE;
 
