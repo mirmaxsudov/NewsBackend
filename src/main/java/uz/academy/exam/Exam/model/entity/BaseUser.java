@@ -7,10 +7,8 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
 @MappedSuperclass
 @NoArgsConstructor
-@AllArgsConstructor
 public abstract class BaseUser {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
