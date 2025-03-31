@@ -1,10 +1,15 @@
 package uz.academy.exam.Exam.exceptions;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import lombok.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,6 +20,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import uz.academy.exam.Exam.model.response.ApiErrorResponse;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +30,7 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-                                                                  @NonNull HttpHeaders headers,
-                                                                  @NonNull HttpStatusCode status,
-                                                                  @NonNull WebRequest request) {
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers, @NonNull HttpStatusCode status, @NonNull WebRequest request) {
         Map<String, String> validationErrors = new HashMap<>();
         List<ObjectError> validationErrorList = ex.getBindingResult().getAllErrors();
 
@@ -101,42 +104,42 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ApiErrorResponse(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, LocalDateTime.now(), 500);
     }
 
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(MalformedJwtException.class)
-//    public ApiErrorResponse handleMalformedJwtException(MalformedJwtException e) {
-//        return new ApiErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
-//    }
-//
-//
-//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-//    @ExceptionHandler(UsernameNotFoundException.class)
-//    public ApiErrorResponse handleUsernameNotFoundException(UsernameNotFoundException e) {
-//        return new ApiErrorResponse("user name or password is incorrect", HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
-//    }
-//
-//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-//    @ExceptionHandler(BadCredentialsException.class)
-//    public ApiErrorResponse handleBadCredentialsException(BadCredentialsException e) {
-//        return new ApiErrorResponse("user name or password is incorrect", HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
-//    }
-//
-//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-//    @ExceptionHandler(ExpiredJwtException.class)
-//    public ApiErrorResponse handleExpiredJwtException(ExpiredJwtException exception) {
-//        return new ApiErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
-//    }
-//
-//    @ResponseStatus(HttpStatus.UNAUTHORIZED)
-//    @ExceptionHandler(SignatureException.class)
-//    public ApiErrorResponse handleSignatureException(SignatureException exception) {
-//        return new ApiErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
-//    }
-//
-//    @ResponseStatus(HttpStatus.FORBIDDEN)
-//    @ExceptionHandler(AccessDeniedException.class)
-//    public ApiErrorResponse handleAccessDeniedException(AccessDeniedException exception) {
-//        return new ApiErrorResponse(exception.getMessage(), HttpStatus.FORBIDDEN, LocalDateTime.now(), 403);
-//    }
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MalformedJwtException.class)
+    public ApiErrorResponse handleMalformedJwtException(MalformedJwtException e) {
+        return new ApiErrorResponse(e.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
+    }
+
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ApiErrorResponse handleUsernameNotFoundException(UsernameNotFoundException e) {
+        return new ApiErrorResponse("user name or password is incorrect", HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(BadCredentialsException.class)
+    public ApiErrorResponse handleBadCredentialsException(BadCredentialsException e) {
+        return new ApiErrorResponse("user name or password is incorrect", HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ApiErrorResponse handleExpiredJwtException(ExpiredJwtException exception) {
+        return new ApiErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
+    }
+
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler(SignatureException.class)
+    public ApiErrorResponse handleSignatureException(SignatureException exception) {
+        return new ApiErrorResponse(exception.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now(), 401);
+    }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ApiErrorResponse handleAccessDeniedException(AccessDeniedException exception) {
+        return new ApiErrorResponse(exception.getMessage(), HttpStatus.FORBIDDEN, LocalDateTime.now(), 403);
+    }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(CustomIllegalArgumentException.class)

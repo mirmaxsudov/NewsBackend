@@ -23,5 +23,7 @@ public class User extends BaseUser {
     @Enumerated(EnumType.STRING)
     private UserRole role;
     @ManyToOne
-    private Attachment attachment;
+    private Attachment profileImage;
+    @ManyToOne
+    private Attachment bannerImage;
 }

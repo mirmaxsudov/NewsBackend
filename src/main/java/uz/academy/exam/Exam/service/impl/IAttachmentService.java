@@ -139,6 +139,11 @@ public class IAttachmentService implements AttachmentService {
         return LOAD_IMG_URL + imageId;
     }
 
+    @Override
+    public void deleteById(Long attachmentId) {
+//        ToDo => delete from storage
+    }
+
 //    @Override
 //    public void deleteAll(List<Attachment> images) {
 //        if (images == null || images.isEmpty())
