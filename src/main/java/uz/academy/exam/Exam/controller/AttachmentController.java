@@ -3,6 +3,7 @@ package uz.academy.exam.Exam.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileUrlResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import uz.academy.exam.Exam.service.base.AttachmentService;
@@ -38,9 +39,9 @@ public class AttachmentController {
         return attachmentService.downloadFile(attachmentId);
     }
 
-//    @DeleteMapping("/{attachmentId}")
-////    @PreAuthorize("hasAnyRole('ADMIN', 'GUIDE', 'TOURIST')")
-//    public ResponseEntity<ApiResponse> delete(@PathVariable("attachmentId") Long attachmentId) {
-//        return ResponseEntity.ok(attachmentService.deleteById(attachmentId));
-//    }
+    @DeleteMapping("/{attachmentId}")
+    @PreAuthorize("hasRole('USER')")
+    public void delete(@PathVariable("attachmentId") Long attachmentId) {
+        attachmentService.deleteById(attachmentId);
+    }
 }

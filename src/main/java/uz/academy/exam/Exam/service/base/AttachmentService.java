@@ -25,4 +25,6 @@ public interface AttachmentService {
     List<Attachment> findAllById(List<Long> attachmentIds);
 
     String getImageUrlById(long imageId);
+
+    void deleteById(Long attachmentId);
 }
