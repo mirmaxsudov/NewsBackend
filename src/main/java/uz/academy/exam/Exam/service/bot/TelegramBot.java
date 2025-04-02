@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -70,27 +71,33 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         TelegramUser telegramUser = telegramUserService.findByChatId(chatId);
 
-        if (text.equals("/start")) {
-            if (telegramUser == null) {
-                User from = message.getFrom();
-                String username = from.getUserName();
-                String firstName = from.getFirstName();
-                String lastName = from.getLastName();
-
-                TelegramUser newUser = TelegramUser.builder()
-                        .chatId(chatId)
-                        .username(username)
-                        .firstName(firstName)
-                        .lastName(lastName)
-                        .build();
-
-                telegramUserService.save(newUser);
-            } else {
-                sendTextMessage(chatId, "You are already registered in the bot!");
-            }
-
+        if (telegramUser == null) {
+            registerLogic(message, text, chatId);
             return;
         }
+
+        sendTextMessage(chatId, text);
+    }
+
+    private void registerLogic(Message message, String text, Long chatId) {
+        if (text.equals("/start")) {
+            User from = message.getFrom();
+            String username = from.getUserName();
+            String firstName = from.getFirstName();
+            String lastName = from.getLastName();
+
+            TelegramUser telegramUser = TelegramUser.builder()
+                    .chatId(chatId)
+                    .firstName(firstName)
+                    .lastName(lastName)
+                    .username(username)
+                    .build();
+
+            telegramUserService.save(telegramUser);
+            sendTextMessage(chatId, "You have successfully registered in the bot!.\nUse /help command to get help.");
+
+        } else
+            sendTextMessage(chatId, "You are not registered in the bot!.\nUse /start command to register.");
     }
 
     @Override
