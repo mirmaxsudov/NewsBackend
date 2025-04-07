@@ -23,8 +23,10 @@ import org.yaml.snakeyaml.util.UriEncoder;
 import uz.academy.exam.Exam.exceptions.CustomConflictException;
 import uz.academy.exam.Exam.exceptions.CustomNotFoundException;
 import uz.academy.exam.Exam.model.entity.attachment.Attachment;
+import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.attachment.VideoAttachment;
 import uz.academy.exam.Exam.model.enums.AttachmentType;
+import uz.academy.exam.Exam.model.response.ApiResponse;
 import uz.academy.exam.Exam.repository.AttachmentRepository;
 import uz.academy.exam.Exam.service.base.AttachmentService;
 
@@ -35,7 +37,6 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -56,16 +57,21 @@ public class IAttachmentService implements AttachmentService {
     @Override
     @SneakyThrows
     @Transactional(rollbackFor = Exception.class)
-    public Long upload(MultipartFile file) {
+    public ApiResponse<Long> upload(MultipartFile file) {
         Attachment attachment = uploadAttachmentToDb(file);
         uploadToStorage(file, attachment);
-        return attachment.getId();
+        return new ApiResponse<Long>(true, "Attachment uploaded successfully with id: " + attachment.getId(), attachment.getId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public List<Long> uploads(List<MultipartFile> multipartFiles) {
-        return multipartFiles.stream().map(this::upload).toList();
+    public ApiResponse<List<Long>> uploads(List<MultipartFile> multipartFiles) {
+        return new ApiResponse<>(
+                true,
+                "Successfully uploaded attachments",
+                multipartFiles.stream().map(this::upload).toList().stream()
+                        .map(ApiResponse::getData).toList()
+        );
     }
 
     @Override
@@ -204,13 +210,22 @@ public class IAttachmentService implements AttachmentService {
             String fileUrl = generateFileName(videoAttachment);
             videoAttachment.setFileUrl(fileUrl);
             return attachmentRepository.saveAndFlush(videoAttachment);
+        } else if (file.getContentType().startsWith("image/")) {
+            ImageAttachment imageAttachment = new ImageAttachment();
+            imageAttachment.setFileName(file.getOriginalFilename());
+            imageAttachment.setExtension(extension);
+            imageAttachment.setFileType(file.getContentType());
+            imageAttachment.setAttachmentType(AttachmentType.IMAGE);
+            attachmentRepository.save(imageAttachment);
+            String fileUrl = generateFileName(imageAttachment);
+            imageAttachment.setFileUrl(fileUrl);
+            return attachmentRepository.saveAndFlush(imageAttachment);
         } else {
             Attachment attachment = new Attachment();
             attachment.setFileName(file.getOriginalFilename());
             attachment.setExtension(extension);
             attachment.setFileType(file.getContentType());
-            attachment.setAttachmentType(file.getContentType().startsWith("image/")
-                    ? AttachmentType.IMAGE : AttachmentType.OTHER);
+            attachment.setAttachmentType(AttachmentType.OTHER);
             attachmentRepository.save(attachment);
             String fileUrl = generateFileName(attachment);
             attachment.setFileUrl(fileUrl);
