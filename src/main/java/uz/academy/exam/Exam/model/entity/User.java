@@ -2,6 +2,8 @@ package uz.academy.exam.Exam.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import uz.academy.exam.Exam.model.entity.attachment.Attachment;
+import uz.academy.exam.Exam.model.entity.base.BaseUser;
 import uz.academy.exam.Exam.model.enums.UserRole;
 
 @Entity

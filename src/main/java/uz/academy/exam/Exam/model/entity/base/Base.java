@@ -1,7 +1,10 @@
-package uz.academy.exam.Exam.model.entity;
+package uz.academy.exam.Exam.model.entity.base;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @MappedSuperclass
 @NoArgsConstructor
-public abstract class BaseUser {
+@AllArgsConstructor
+public abstract class Base {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;

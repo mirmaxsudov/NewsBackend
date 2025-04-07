@@ -2,6 +2,8 @@ package uz.academy.exam.Exam.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -17,20 +19,28 @@ import java.util.List;
 public class AttachmentController {
     private final AttachmentService attachmentService;
 
-    @GetMapping("/{imgId}")
-    public ResponseEntity<FileUrlResource> get(
-            @PathVariable("imgId") Long imgId
+    @GetMapping("/stream/{attachmentId}")
+    public ResponseEntity<ResourceRegion> streamVideo(
+            @PathVariable("attachmentId") Long attachmentId,
+            @RequestHeader HttpHeaders headers
     ) {
-        return attachmentService.getImage(imgId);
+        return attachmentService.streamVideo(attachmentId, headers);
+    }
+
+    @GetMapping("/{attachmentId}")
+    public ResponseEntity<FileUrlResource> getAttachment(
+            @PathVariable("attachmentId") Long attachmentId
+    ) {
+        return attachmentService.getAttachment(attachmentId);
     }
 
     @PostMapping(value = "/upload", consumes = "multipart/form-data", produces = "application/json")
-    public ResponseEntity<Long> upload(@RequestParam("img") MultipartFile img) {
-        return ResponseEntity.ok(attachmentService.upload(img));
+    public ResponseEntity<Long> upload(@RequestParam("file") MultipartFile file) {
+        return ResponseEntity.ok(attachmentService.upload(file));
     }
 
     @PostMapping(value = "/uploads", consumes = "multipart/form-data", produces = "application/json")
-    public ResponseEntity<List<Long>> uploads(@RequestParam("imgs") List<MultipartFile> multipartFiles) {
+    public ResponseEntity<List<Long>> uploads(@RequestParam("files") List<MultipartFile> multipartFiles) {
         return ResponseEntity.ok(attachmentService.uploads(multipartFiles));
     }
 
