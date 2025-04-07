@@ -22,5 +22,6 @@ public class Attachment {
     private Long fileSize;
     private String extension;
     @Enumerated(EnumType.STRING)
+    @Column(name = "attachment_type_value")
     private AttachmentType attachmentType;
 }
