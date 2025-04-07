@@ -1,10 +1,8 @@
-package uz.academy.exam.Exam.model.entity;
+package uz.academy.exam.Exam.model.entity.attachment;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
+import uz.academy.exam.Exam.model.enums.AttachmentType;
 
 @Entity
 @Getter
@@ -12,6 +10,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@DiscriminatorColumn(name = "attachment_type")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Attachment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +21,6 @@ public class Attachment {
     private String fileUrl;
     private Long fileSize;
     private String extension;
+    @Enumerated(EnumType.STRING)
+    private AttachmentType attachmentType;
 }

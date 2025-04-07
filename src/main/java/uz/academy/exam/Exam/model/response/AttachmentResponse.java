@@ -1,7 +1,7 @@
 package uz.academy.exam.Exam.model.response;
 
 import lombok.*;
-import uz.academy.exam.Exam.model.entity.Attachment;
+import uz.academy.exam.Exam.model.entity.attachment.Attachment;
 
 @Getter
 @Setter

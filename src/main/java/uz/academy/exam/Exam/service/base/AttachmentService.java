@@ -1,30 +1,30 @@
 package uz.academy.exam.Exam.service.base;
 
 import org.springframework.core.io.FileUrlResource;
+import org.springframework.core.io.support.ResourceRegion;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
-import uz.academy.exam.Exam.model.entity.Attachment;
+import uz.academy.exam.Exam.model.entity.attachment.Attachment;
 
 import java.util.List;
 
 public interface AttachmentService {
-    Long upload(MultipartFile img);
+    Long upload(MultipartFile file);
 
     List<Long> uploads(List<MultipartFile> multipartFiles);
 
-//    ApiResponse deleteById(Long attachmentId);
-
-    ResponseEntity<FileUrlResource> getImage(Long imgId);
+    ResponseEntity<FileUrlResource> getAttachment(Long attachmentId);
 
     Attachment getById(Long attachmentId);
-
-//    AttachmentResponse toResponse(Attachment attachment);
 
     ResponseEntity<byte[]> downloadFile(Long attachmentId);
 
     List<Attachment> findAllById(List<Long> attachmentIds);
 
-    String getImageUrlById(long imageId);
+    String getAttachmentUrlById(long attachmentId);
 
     void deleteById(Long attachmentId);
+
+    ResponseEntity<ResourceRegion> streamVideo(Long attachmentId, HttpHeaders headers);
 }
