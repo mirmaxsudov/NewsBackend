@@ -6,13 +6,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import uz.academy.exam.Exam.model.entity.attachment.Attachment;
+import uz.academy.exam.Exam.model.response.ApiResponse;
 
 import java.util.List;
 
 public interface AttachmentService {
-    Long upload(MultipartFile file);
+    ApiResponse<Long> upload(MultipartFile file);
 
-    List<Long> uploads(List<MultipartFile> multipartFiles);
+    ApiResponse<List<Long>> uploads(List<MultipartFile> multipartFiles);
 
     ResponseEntity<FileUrlResource> getAttachment(Long attachmentId);
 

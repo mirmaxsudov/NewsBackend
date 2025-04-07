@@ -8,18 +8,19 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
 @Setter
+@Getter
 @MappedSuperclass
-@NoArgsConstructor
-@AllArgsConstructor
 public abstract class Base {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private boolean isDeleted;
+
+    // Initialize with a default value to avoid null
+    private boolean isDeleted = false;
     private LocalDateTime deletedAt;
 
     @PostPersist
