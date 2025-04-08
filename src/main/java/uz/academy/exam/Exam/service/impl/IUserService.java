@@ -3,6 +3,7 @@ package uz.academy.exam.Exam.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uz.academy.exam.Exam.exceptions.CustomNotFoundException;
 import uz.academy.exam.Exam.model.entity.User;
 import uz.academy.exam.Exam.model.response.UserResponse;
 import uz.academy.exam.Exam.repository.UserRepository;
@@ -32,6 +33,14 @@ public class IUserService implements UserService {
     @Override
     public UserResponse getUser(Long userId) {
         return UserResponse.from(getById(userId));
+    }
+
+    @Override
+    public User getById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(
+                        () -> new CustomNotFoundException("User not found with id: " + userId)
+                );
     }
 
     private User getById(Long userId) {

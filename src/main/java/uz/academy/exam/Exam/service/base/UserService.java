@@ -11,4 +11,6 @@ public interface UserService {
     void save(User user);
 
     UserResponse getUser(Long userId);
+
+    User getById(long userId);
 }
