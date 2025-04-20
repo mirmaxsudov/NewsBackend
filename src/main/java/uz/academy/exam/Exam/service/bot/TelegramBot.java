@@ -75,21 +75,19 @@ public class TelegramBot extends TelegramLongPollingBot {
         if (text == null || chatId == null || text.isBlank())
             return;
 
-        TelegramUser telegramUser = telegramUserService.findByChatId(chatId);
+        TelegramUser telegramUser = telegramUserService.findByChatId(chatId);;
 
         if (telegramUser == null) {
             registerLogic(message, text, chatId);
             return;
-        }
-
-        if (text.equals("/code")) {
+        } else if (text.equals("/code")) {
             getVerificationCode(chatId, telegramUser);
         }
     }
 
     private void getVerificationCode(Long chatId, TelegramUser telegramUser) {
         if (telegramUser.isRegistered()) {
-            sendTextMessage(chatId,"You are already registered", false);
+            sendTextMessage(chatId, "You are already registered", false);
             return;
         }
 

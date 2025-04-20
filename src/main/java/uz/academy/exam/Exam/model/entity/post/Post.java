@@ -21,7 +21,6 @@ public abstract class Post extends Base {
     private Long views = 0L;
     private boolean isDraft = false;
 
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String postBody;
 

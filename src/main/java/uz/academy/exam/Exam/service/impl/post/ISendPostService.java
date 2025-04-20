@@ -1,9 +1,13 @@
 package uz.academy.exam.Exam.service.impl.post;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uz.academy.exam.Exam.exceptions.CustomNotFoundException;
 import uz.academy.exam.Exam.mapper.UserMapper;
 import uz.academy.exam.Exam.mapper.post.SendPostMapper;
@@ -15,6 +19,7 @@ import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.model.response.post.SendPostPageResponseOwn;
 import uz.academy.exam.Exam.model.response.post.SendPostResponse;
 import uz.academy.exam.Exam.repository.post.SendPostRepository;
+import uz.academy.exam.Exam.security.service.CustomUserDetails;
 import uz.academy.exam.Exam.service.base.AttachmentService;
 import uz.academy.exam.Exam.service.base.UserService;
 import uz.academy.exam.Exam.service.base.post.SendPostService;
@@ -32,7 +37,7 @@ public class ISendPostService implements SendPostService {
     private final UserMapper userMapper;
 
     @Override
-    public ResponseEntity<ApiResponse<Void>> createSendPost(SendPostRequest request) {
+    public ResponseEntity<ApiResponse<Void>> createSendPost(SendPostRequest request, CustomUserDetails details) {
         ImageAttachment imageAttachment = (ImageAttachment) attachmentService.getById(request.getImageId());
 
         SendPost sendPost = new SendPost();
@@ -45,6 +50,7 @@ public class ISendPostService implements SendPostService {
         sendPost.setViews(0L);
         sendPost.setDeleted(false);
         sendPost.setDeletedAt(null);
+        sendPost.setOwner(details.user());
 
         sendPostRepository.save(sendPost);
 
@@ -56,36 +62,41 @@ public class ISendPostService implements SendPostService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse<SendPostPageResponseOwn>> getSendPostsWithPage(int page, int size) {
-        final List<SendPost> content = sendPostRepository.findAll(getPageable(page, size)).getContent();
-        final long totalElements = sendPostRepository.count();
+    public ResponseEntity<ApiResponse<SendPostPageResponseOwn>> getSendPostsWithPage(
+            int page,
+            int size,
+            CustomUserDetails details
+    ) {
+        long userId = details.user().getId();
+        Pageable paging = PageRequest.of(page, size, Sort.by("id").descending());
 
-        ApiResponse<SendPostPageResponseOwn> apiResponse = new ApiResponse<>();
-        apiResponse.setSuccess(true);
-        apiResponse.setMessage("Send posts fetched successfully");
+        Page<SendPost> pageResult = sendPostRepository.findByOwnerId(userId, paging);
 
-        SendPostPageResponseOwn sendPostPageResponseOwn = sendPostMapper.toSendPostPageResponse(content, totalElements);
-        sendPostPageResponseOwn.setPage(page);
-        sendPostPageResponseOwn.setSize(size);
+        List<SendPost> content = pageResult.getContent();
+        int totalPages = pageResult.getTotalPages();
+        long totalItems = pageResult.getTotalElements();
 
-        User owner = userService.getById(2L);
-
-        sendPostPageResponseOwn.setOwner(userMapper.toUserPreview(owner));
-        sendPostPageResponseOwn.setTotalPages(
-                (int) Math.ceil((double) totalElements / size)
+        SendPostPageResponseOwn dto = sendPostMapper.toSendPostPageResponse(
+                content,
+                totalItems
         );
+        dto.setPage(page);
+        dto.setSize(size);
+        dto.setTotalPages(totalPages);
+        dto.setOwner(userMapper.toUserPreview(details.user()));
 
-        apiResponse.setData(sendPostPageResponseOwn);
+        ApiResponse<SendPostPageResponseOwn> resp = ApiResponse.<SendPostPageResponseOwn>builder()
+                .success(true)
+                .message("Send posts fetched successfully")
+                .data(dto)
+                .build();
 
-        return ResponseEntity.ok(apiResponse);
+        return ResponseEntity.ok(resp);
     }
 
     @Override
     public ResponseEntity<ApiResponse<SendPostResponse>> getById(Long id) {
         SendPost sendPost = getByIdForBackend(id);
-        User owner = userService.getById(2);
-        sendPost.setOwner(owner);
-
         SendPostResponse response = sendPostMapper.toSendPostResponse(sendPost);
 
         return ResponseEntity.ok(
