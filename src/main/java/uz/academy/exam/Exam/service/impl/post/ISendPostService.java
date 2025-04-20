@@ -4,14 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import uz.academy.exam.Exam.exceptions.CustomNotFoundException;
 import uz.academy.exam.Exam.mapper.UserMapper;
 import uz.academy.exam.Exam.mapper.post.SendPostMapper;
-import uz.academy.exam.Exam.model.entity.User;
+import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.post.SendPost;
 import uz.academy.exam.Exam.model.request.SendPostRequest;
-import uz.academy.exam.Exam.model.response.ApiResponse;
-import uz.academy.exam.Exam.model.response.SendPostPageResponseOwn;
+import uz.academy.exam.Exam.model.response.response.ApiResponse;
+import uz.academy.exam.Exam.model.response.post.SendPostPageResponseOwn;
+import uz.academy.exam.Exam.model.response.post.SendPostResponse;
 import uz.academy.exam.Exam.repository.post.SendPostRepository;
 import uz.academy.exam.Exam.service.base.AttachmentService;
 import uz.academy.exam.Exam.service.base.UserService;
@@ -78,7 +80,44 @@ public class ISendPostService implements SendPostService {
         return ResponseEntity.ok(apiResponse);
     }
 
+    @Override
+    public ResponseEntity<ApiResponse<SendPostResponse>> getById(Long id) {
+        SendPost sendPost = getByIdForBackend(id);
+        User owner = userService.getById(2);
+        sendPost.setOwner(owner);
+
+        SendPostResponse response = sendPostMapper.toSendPostResponse(sendPost);
+
+        return ResponseEntity.ok(
+                ApiResponse.<SendPostResponse>builder()
+                        .message("Send post fetched successfully")
+                        .data(response)
+                        .success(true)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<String>> viewed(long id) {
+        SendPost sendPost = getByIdForBackend(id);
+        sendPost.setViews(sendPost.getViews() + 1);
+        sendPostRepository.save(sendPost);
+
+        return ResponseEntity.ok(
+                ApiResponse.<String>builder()
+                        .message("Send post viewed successfully")
+                        .success(true)
+                        .data("Send post viewed successfully")
+                        .build()
+        );
+    }
+
     private Pageable getPageable(int page, int size) {
         return Pageable.ofSize(size).withPage(page);
+    }
+
+    public SendPost getByIdForBackend(Long id) {
+        return sendPostRepository.findById(id)
+                .orElseThrow(() -> new CustomNotFoundException("There is no send post with this id " + id));
     }
 }

@@ -4,7 +4,7 @@
 //import org.springframework.boot.CommandLineRunner;
 //import org.springframework.security.crypto.password.PasswordEncoder;
 //import org.springframework.stereotype.Component;
-//import uz.academy.exam.Exam.model.entity.User;
+//import uz.academy.exam.Exam.model.entity.user.User;
 //import uz.academy.exam.Exam.model.enums.UserRole;
 //import uz.academy.exam.Exam.service.base.UserService;
 //

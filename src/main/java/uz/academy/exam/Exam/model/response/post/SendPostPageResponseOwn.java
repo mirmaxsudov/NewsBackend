@@ -1,4 +1,4 @@
-package uz.academy.exam.Exam.model.response;
+package uz.academy.exam.Exam.model.response.post;
 
 import lombok.*;
 import uz.academy.exam.Exam.model.preview.SendPostPreview;

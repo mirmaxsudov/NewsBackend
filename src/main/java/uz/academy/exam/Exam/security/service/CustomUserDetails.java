@@ -3,7 +3,7 @@ package uz.academy.exam.Exam.security.service;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import uz.academy.exam.Exam.model.entity.User;
+import uz.academy.exam.Exam.model.entity.user.User;
 
 import java.util.ArrayList;
 import java.util.Collection;

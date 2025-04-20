@@ -1,38 +1,44 @@
 package uz.academy.exam.Exam.service.bot;
 
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import uz.academy.exam.Exam.config.bot.BotConfiguration;
-import uz.academy.exam.Exam.model.entity.TelegramUser;
+import uz.academy.exam.Exam.model.entity.user.telegram.TelegramUser;
+import uz.academy.exam.Exam.model.entity.user.telegram.TelegramVerificationCode;
+import uz.academy.exam.Exam.repository.telegram.TelegramVerificationCodeRepository;
 import uz.academy.exam.Exam.service.base.TelegramUserService;
 import uz.academy.exam.Exam.service.base.UserService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class TelegramBot extends TelegramLongPollingBot {
     private final BotConfiguration botConfiguration;
     private final UserService userService;
+    private final TelegramVerificationCodeRepository telegramVerificationCodeRepository;
     private final TelegramUserService telegramUserService;
     private final Logger LOGGER = LoggerFactory.getLogger(TelegramBot.class);
+    private final static Short MAX_GET_VERIFICATION_CODE_COUNT = 3;
 
     @Autowired
-    public TelegramBot(BotConfiguration botConfiguration, UserService userService, TelegramUserService telegramUserService) {
+    public TelegramBot(BotConfiguration botConfiguration, UserService userService, TelegramVerificationCodeRepository telegramVerificationCodeRepository, TelegramUserService telegramUserService) {
         this.botConfiguration = botConfiguration;
         this.userService = userService;
+        this.telegramVerificationCodeRepository = telegramVerificationCodeRepository;
         this.telegramUserService = telegramUserService;
 
         List<BotCommand> commands = List.of(
@@ -76,7 +82,27 @@ public class TelegramBot extends TelegramLongPollingBot {
             return;
         }
 
-        sendTextMessage(chatId, text);
+        if (text.equals("/code")) {
+            getVerificationCode(chatId, telegramUser);
+        }
+    }
+
+    private void getVerificationCode(Long chatId, TelegramUser telegramUser) {
+        List<TelegramVerificationCode> verificationCodes = telegramVerificationCodeRepository.findAllByTelegramUser(telegramUser);
+
+        if (MAX_GET_VERIFICATION_CODE_COUNT - verificationCodes.size() <= 0) {
+            sendTextMessage(chatId, "You can get verification code only " + MAX_GET_VERIFICATION_CODE_COUNT + " times.", false);
+            return;
+        }
+
+        TelegramVerificationCode code = new TelegramVerificationCode();
+        code.setCode(userService.generateVerificationCode());
+        code.setTelegramUser(telegramUser);
+        code.setSentAt(LocalDateTime.now());
+
+        telegramVerificationCodeRepository.save(code);
+
+        sendTextMessage(chatId, "Verification code: <pre>" + code.getCode() + "</pre>", true);
     }
 
     private void registerLogic(Message message, String text, Long chatId) {
@@ -94,10 +120,10 @@ public class TelegramBot extends TelegramLongPollingBot {
                     .build();
 
             telegramUserService.save(telegramUser);
-            sendTextMessage(chatId, "You have successfully registered in the bot!.\nUse /help command to get help.");
+            sendTextMessage(chatId, "You have successfully registered in the bot!.\nUse /help command to get help.", false);
 
         } else
-            sendTextMessage(chatId, "You are not registered in the bot!.\nUse /start command to register.");
+            sendTextMessage(chatId, "You are not registered in the bot!.\nUse /start command to register.", false);
     }
 
     @Override
@@ -112,10 +138,20 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     @SneakyThrows
-    public void sendTextMessage(Long chatId, String text) {
-        execute(SendMessage.builder()
+    public void sendTextMessage(Long chatId, String text, boolean isHtml) {
+        SendMessage build = SendMessage.builder()
                 .text(text)
                 .chatId(chatId)
-                .build());
+                .build();
+
+        if (isHtml)
+            build.setParseMode(ParseMode.HTML);
+
+        execute(build);
+    }
+
+    @Scheduled(fixedRate = 60000L) // Each one minute
+    private void deleteExpiredVerificationCodes() {
+        telegramVerificationCodeRepository.deleteAllBySentAtBefore(LocalDateTime.now().minusMinutes(1));
     }
 }

@@ -26,7 +26,7 @@ import uz.academy.exam.Exam.model.entity.attachment.Attachment;
 import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.attachment.VideoAttachment;
 import uz.academy.exam.Exam.model.enums.AttachmentType;
-import uz.academy.exam.Exam.model.response.ApiResponse;
+import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.repository.AttachmentRepository;
 import uz.academy.exam.Exam.service.base.AttachmentService;
 
