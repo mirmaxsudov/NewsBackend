@@ -15,11 +15,8 @@ public abstract class Base {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    // Initialize with a default value to avoid null
     private boolean isDeleted = false;
     private LocalDateTime deletedAt;
 

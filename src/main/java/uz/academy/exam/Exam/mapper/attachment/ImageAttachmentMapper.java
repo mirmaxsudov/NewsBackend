@@ -18,6 +18,7 @@ public class ImageAttachmentMapper {
                 .url(image.getFileUrl())
                 .downloadUrl(image.getFileUrl())
                 .extension(image.getExtension())
+                .id(image.getId())
                 .build();
     }
 }

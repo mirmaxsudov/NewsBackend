@@ -1,4 +1,4 @@
-package uz.academy.exam.Exam.model.entity;
+package uz.academy.exam.Exam.model.entity.user;
 
 import jakarta.persistence.*;
 import lombok.*;

@@ -1,7 +1,6 @@
-package uz.academy.exam.Exam.model.response;
+package uz.academy.exam.Exam.model.response.response;
 
 import lombok.*;
-import org.springframework.http.ResponseEntity;
 
 @Setter
 @Getter

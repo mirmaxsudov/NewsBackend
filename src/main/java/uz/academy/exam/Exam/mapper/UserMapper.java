@@ -3,7 +3,7 @@ package uz.academy.exam.Exam.mapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import uz.academy.exam.Exam.mapper.attachment.ImageAttachmentMapper;
-import uz.academy.exam.Exam.model.entity.User;
+import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.preview.UserPreview;
 

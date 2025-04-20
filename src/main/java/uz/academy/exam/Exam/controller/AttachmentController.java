@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import uz.academy.exam.Exam.model.response.ApiResponse;
+import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.service.base.AttachmentService;
 import uz.academy.exam.Exam.util.ApiUtil;
 

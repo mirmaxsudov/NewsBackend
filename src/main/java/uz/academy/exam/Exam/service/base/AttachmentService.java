@@ -6,7 +6,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 import uz.academy.exam.Exam.model.entity.attachment.Attachment;
-import uz.academy.exam.Exam.model.response.ApiResponse;
+import uz.academy.exam.Exam.model.response.response.ApiResponse;
 
 import java.util.List;
 

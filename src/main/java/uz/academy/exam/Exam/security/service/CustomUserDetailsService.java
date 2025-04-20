@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import uz.academy.exam.Exam.model.entity.User;
+import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.service.base.UserService;
 
 import java.util.Optional;

@@ -1,7 +1,7 @@
 package uz.academy.exam.Exam.model.response;
 
 import lombok.*;
-import uz.academy.exam.Exam.model.entity.User;
+import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.enums.UserRole;
 
 @Getter
