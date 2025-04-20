@@ -88,6 +88,11 @@ public class TelegramBot extends TelegramLongPollingBot {
     }
 
     private void getVerificationCode(Long chatId, TelegramUser telegramUser) {
+        if (telegramUser.isRegistered()) {
+            sendTextMessage(chatId,"You are already registered", false);
+            return;
+        }
+
         List<TelegramVerificationCode> verificationCodes = telegramVerificationCodeRepository.findAllByTelegramUser(telegramUser);
 
         if (MAX_GET_VERIFICATION_CODE_COUNT - verificationCodes.size() <= 0) {

@@ -1,21 +1,21 @@
 package uz.academy.exam.Exam.service.impl;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatusCode;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import uz.academy.exam.Exam.exceptions.CustomBadRequestException;
 import uz.academy.exam.Exam.exceptions.CustomConflictException;
 import uz.academy.exam.Exam.mapper.attachment.ImageAttachmentMapper;
-import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.entity.user.telegram.TelegramUser;
 import uz.academy.exam.Exam.model.enums.UserRole;
 import uz.academy.exam.Exam.model.response.jwt.JwtResponse;
-import uz.academy.exam.Exam.model.response.jwt.UserJwtPreview;
 import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.security.service.CustomUserDetails;
 import uz.academy.exam.Exam.security.service.JwtService;
@@ -25,6 +25,7 @@ import uz.academy.exam.Exam.service.base.UserService;
 
 @Service
 @RequiredArgsConstructor
+@PropertySource("classpath:jwt.properties")
 public class IAuthService implements AuthService {
     private final TelegramUserService telegramUserService;
     private final AuthenticationManager authenticationManager;
@@ -67,39 +68,119 @@ public class IAuthService implements AuthService {
     }
 
     @Override
-    public ResponseEntity<ApiResponse<JwtResponse>> login(String username, String password) {
+    public ResponseEntity<ApiResponse<JwtResponse>> login(
+            String username,
+            String password,
+            HttpServletResponse response
+    ) {
+        // 1) Authenticate credentials
         authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        username, password
-                )
+                new UsernamePasswordAuthenticationToken(username, password)
         );
 
+        // 2) Load full user details
         User user = userService.findUserByUsername(username);
 
-        if (!passwordEncoder.matches(password, user.getPassword()))
-            throw new CustomBadRequestException("Wrong password");
-
+        // 3) Generate tokens
         String accessToken = jwtService.generateAccessToken(new CustomUserDetails(user));
+        String refreshToken = jwtService.generateRefreshToken(new CustomUserDetails(user));
 
-        JwtResponse jwtResponse = JwtResponse.builder()
+        // 4) Set refresh token in HttpOnly cookie
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);                // only over HTTPS
+        cookie.setPath("/api/v1/auth");           // only send for these endpoints
+        cookie.setMaxAge((int) (jwtService.refreshTokenExpirationMs / 1000));
+        response.addCookie(cookie);
+
+        // 5) Build response body with access token
+        JwtResponse body = JwtResponse.builder()
                 .token(accessToken)
                 .type("Bearer")
                 .build();
 
-        UserJwtPreview preview = UserJwtPreview.builder()
-                .id(user.getId())
-                .username(user.getUserName())
-                .firstname(user.getFirstName())
-                .image(imageAttachmentMapper.toImageAttachmentResponse((ImageAttachment) user.getProfileImage()))
+        return ResponseEntity.ok(
+                ApiResponse.<JwtResponse>builder()
+                        .message("Logged in")
+                        .success(true)
+                        .data(body)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<JwtResponse>> refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        // 1) Extract cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null) {
+            return ResponseEntity
+                    .status(401)
+                    .body(ApiResponse.<JwtResponse>builder()
+                            .message("No refresh token")
+                            .success(false)
+                            .build());
+        }
+        String refreshToken = null;
+        for (Cookie c : cookies) {
+            if ("refreshToken".equals(c.getName())) {
+                refreshToken = c.getValue();
+            }
+        }
+        if (refreshToken == null || !jwtService.validateToken(refreshToken)) {
+            return ResponseEntity
+                    .status(401)
+                    .body(ApiResponse.<JwtResponse>builder()
+                            .message("Invalid refresh token")
+                            .success(false)
+                            .build());
+        }
+
+        // 2) Generate new tokens
+        String username = jwtService.extractUsername(refreshToken);
+        User user = userService.findUserByUsername(username);
+        String newAccess = jwtService.generateAccessToken(new CustomUserDetails(user));
+        String newRefresh = jwtService.generateRefreshToken(new CustomUserDetails(user));
+
+        // 3) Rotate cookie
+        Cookie cookie = new Cookie("refreshToken", newRefresh);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/api/v1/auth");
+        cookie.setMaxAge((int) (jwtService.refreshTokenExpirationMs / 1000));
+        response.addCookie(cookie);
+
+        // 4) Return new access token
+        JwtResponse body = JwtResponse.builder()
+                .token(newAccess)
+                .type("Bearer")
                 .build();
 
-        jwtResponse.setUser(preview);
-
-        return ResponseEntity.status(200).body(
+        return ResponseEntity.ok(
                 ApiResponse.<JwtResponse>builder()
-                        .message("User logged in successfully")
+                        .message("Token refreshed")
                         .success(true)
-                        .data(jwtResponse)
+                        .data(body)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        // Clear the cookie
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/api/v1/auth");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Logged out")
+                        .success(true)
                         .build()
         );
     }

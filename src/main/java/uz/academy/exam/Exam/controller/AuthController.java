@@ -1,5 +1,7 @@
 package uz.academy.exam.Exam.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,8 +30,22 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JwtResponse>> login(
             @RequestParam("username") String username,
-            @RequestParam("password") String password
+            @RequestParam("password") String password,
+            HttpServletResponse response
     ) {
-        return authService.login(username, password);
+        return authService.login(username, password, response);
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<ApiResponse<JwtResponse>> refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) {
+        return authService.refreshToken(request, response);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        return authService.logout(response);
     }
 }
