@@ -48,7 +48,7 @@ public class SecurityConfig {
             "/webjars/**",
             "/swagger-ui.html",
             "/api/v1/attachment/**",
-            "api/v1/auth/**"
+            "/api/v1/auth/**"
     };
 
     // 1) Expose your filter as a bean

@@ -16,7 +16,6 @@ public class ITelegramService implements TelegramUserService {
     private final TelegramVerificationCodeRepository telegramVerificationCodeRepository;
 
     @Override
-    @Cacheable(value = "telegramUser", key = "#chatId")
     public TelegramUser findByChatId(Long chatId) {
         return telegramUserRepository.findByChatId(chatId);
     }

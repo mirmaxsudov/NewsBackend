@@ -4,7 +4,11 @@ import jakarta.persistence.*;
 import lombok.*;
 import uz.academy.exam.Exam.model.entity.attachment.Attachment;
 import uz.academy.exam.Exam.model.entity.base.BaseUser;
+import uz.academy.exam.Exam.model.entity.post.SendPost;
 import uz.academy.exam.Exam.model.enums.UserRole;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,4 +32,6 @@ public class User extends BaseUser {
     private Attachment profileImage;
     @ManyToOne
     private Attachment bannerImage;
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<SendPost> sendPosts = new ArrayList<>();
 }
