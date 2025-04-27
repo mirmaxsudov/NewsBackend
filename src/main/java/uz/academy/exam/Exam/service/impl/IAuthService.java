@@ -113,7 +113,6 @@ public class IAuthService implements AuthService {
             HttpServletRequest request,
             HttpServletResponse response
     ) {
-        // 1) Extract cookie
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
             return ResponseEntity
@@ -123,28 +122,27 @@ public class IAuthService implements AuthService {
                             .success(false)
                             .build());
         }
+
         String refreshToken = null;
         for (Cookie c : cookies) {
             if ("refreshToken".equals(c.getName())) {
                 refreshToken = c.getValue();
             }
         }
-        if (refreshToken == null || !jwtService.validateToken(refreshToken)) {
+
+        if (refreshToken == null || !jwtService.validateToken(refreshToken))
             return ResponseEntity
                     .status(401)
                     .body(ApiResponse.<JwtResponse>builder()
                             .message("Invalid refresh token")
                             .success(false)
                             .build());
-        }
 
-        // 2) Generate new tokens
         String username = jwtService.extractUsername(refreshToken);
         User user = userService.findUserByUsername(username);
         String newAccess = jwtService.generateAccessToken(new CustomUserDetails(user));
         String newRefresh = jwtService.generateRefreshToken(new CustomUserDetails(user));
 
-        // 3) Rotate cookie
         Cookie cookie = new Cookie("refreshToken", newRefresh);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
@@ -152,7 +150,6 @@ public class IAuthService implements AuthService {
         cookie.setMaxAge((int) (jwtService.refreshTokenExpirationMs / 1000));
         response.addCookie(cookie);
 
-        // 4) Return new access token
         JwtResponse body = JwtResponse.builder()
                 .token(newAccess)
                 .type("Bearer")
@@ -169,7 +166,6 @@ public class IAuthService implements AuthService {
 
     @Override
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
-        // Clear the cookie
         Cookie cookie = new Cookie("refreshToken", null);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
