@@ -23,7 +23,6 @@ public class User extends BaseUser {
     private String userName;
     private String password;
     private String email;
-    @Lob
     @Column(columnDefinition = "TEXT")
     private String explanation;
     @Enumerated(EnumType.STRING)

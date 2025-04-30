@@ -12,10 +12,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import uz.academy.exam.Exam.exceptions.CustomConflictException;
 import uz.academy.exam.Exam.mapper.attachment.ImageAttachmentMapper;
+import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.entity.user.telegram.TelegramUser;
 import uz.academy.exam.Exam.model.enums.UserRole;
 import uz.academy.exam.Exam.model.response.jwt.JwtResponse;
+import uz.academy.exam.Exam.model.response.jwt.UserJwtPreview;
 import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.security.service.CustomUserDetails;
 import uz.academy.exam.Exam.security.service.JwtService;
@@ -97,6 +99,12 @@ public class IAuthService implements AuthService {
         JwtResponse body = JwtResponse.builder()
                 .token(accessToken)
                 .type("Bearer")
+                .user(UserJwtPreview.builder()
+                        .id(user.getId())
+                        .username(user.getUserName())
+                        .firstname(user.getFirstName())
+                        .image(imageAttachmentMapper.toImageAttachmentResponse((ImageAttachment) user.getProfileImage()))
+                        .build())
                 .build();
 
         return ResponseEntity.ok(
