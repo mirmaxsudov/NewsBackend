@@ -19,6 +19,7 @@ public abstract class Post extends Base {
     private String title;
 
     private Long views = 0L;
+
     private boolean isDraft = false;
 
     @Column(columnDefinition = "TEXT")

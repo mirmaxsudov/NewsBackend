@@ -137,6 +137,52 @@ public class IUserService implements UserService {
         );
     }
 
+    @Override
+    public ResponseEntity<ApiResponse<Void>> updateExplanation(String explanation, CustomUserDetails details) {
+        User user = details.user();
+
+        user.setExplanation(explanation);
+        save(user);
+
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Explanation updated successfully")
+                        .success(true)
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<Void>> deleteBanner(CustomUserDetails details) {
+        User user = details.user();
+        attachmentService.deleteById(user.getBannerImage().getId());
+        user.setBannerImage(null);
+        save(user);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Banner deleted successfully")
+                        .success(true)
+                        .data(null)
+                        .build()
+        );
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse<Void>> deleteProfileImage(CustomUserDetails details) {
+        User user = details.user();
+        attachmentService.deleteById(user.getProfileImage().getId());
+        user.setProfileImage(null);
+        save(user);
+        return ResponseEntity.ok(
+                ApiResponse.<Void>builder()
+                        .message("Profile image deleted successfully")
+                        .success(true)
+                        .data(null)
+                        .build()
+        );
+    }
+
     private User getById(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(

@@ -17,7 +17,7 @@ public class AttachmentResponse {
         if (attachment != null) {
             return AttachmentResponse.builder()
                     .id(attachment.getId())
-                    .url(attachment.getFileUrl())
+                    .url("http://localhost:8081/api/v1/attachment/" + attachment.getId())
                     .downloadUrl(attachment.getFileUrl())
                     .build();
         }

@@ -58,7 +58,18 @@ public class UserController {
             @RequestParam("explanation") String explanation,
             @AuthenticationPrincipal CustomUserDetails details
     ) {
-//        return userService.updateExplanation(explanation, details);
-        return null;
+        return userService.updateExplanation(explanation, details);
+    }
+
+    @DeleteMapping("/delete-banner")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteBanner(@AuthenticationPrincipal CustomUserDetails details) {
+        return userService.deleteBanner(details);
+    }
+
+    @DeleteMapping("/delete-profile-image")
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    public ResponseEntity<ApiResponse<Void>> deleteProfileImage(@AuthenticationPrincipal CustomUserDetails details) {
+        return userService.deleteProfileImage(details);
     }
 }

@@ -29,4 +29,10 @@ public interface UserService {
     ResponseEntity<ApiResponse<Void>> updateProfileImage(Long imageId, CustomUserDetails details);
 
     ResponseEntity<ApiResponse<Void>> updateUser(UserUpdateRequest request, CustomUserDetails details);
+
+    ResponseEntity<ApiResponse<Void>> updateExplanation(String explanation, CustomUserDetails details);
+
+    ResponseEntity<ApiResponse<Void>> deleteBanner(CustomUserDetails details);
+
+    ResponseEntity<ApiResponse<Void>> deleteProfileImage(CustomUserDetails details);
 }

@@ -6,7 +6,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import uz.academy.exam.Exam.model.entity.user.User;
+import uz.academy.exam.Exam.model.enums.Category;
 import uz.academy.exam.Exam.model.request.SendPostRequest;
+import uz.academy.exam.Exam.model.response.SendPostPageResponseAll;
+import uz.academy.exam.Exam.model.response.SendPostPreviewForAll;
 import uz.academy.exam.Exam.model.response.response.ApiResponse;
 import uz.academy.exam.Exam.model.response.post.SendPostPageResponseOwn;
 import uz.academy.exam.Exam.model.response.post.SendPostResponse;
@@ -51,5 +54,35 @@ public class SendPostController {
             @PathVariable("id") Long id
     ) {
         return sendPostService.getById(id);
+    }
+
+    @GetMapping("/related/{id}")
+    public ResponseEntity<ApiResponse<SendPostPageResponseAll>> getRelatedSendPosts(
+            @PathVariable("id") Long id,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "12", required = false) int size
+    ) {
+        return sendPostService.getRelatedSendPosts(id, page, size);
+    }
+
+    @GetMapping("/top")
+    public ResponseEntity<ApiResponse<SendPostPageResponseAll>> getTopSendPosts(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "12", required = false) int size
+    ) {
+        return sendPostService.getTopSendPosts(page, size);
+    }
+
+    @GetMapping("/{category}/category")
+    public ResponseEntity<ApiResponse<SendPostPageResponseAll>> getByCategory(
+            @PathVariable("category") Category category,
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "size", defaultValue = "12", required = false) int size,
+            @RequestParam(value = "isNew", defaultValue = "true", required = false) Boolean isNew,
+            @RequestParam(value = "isTrendy", defaultValue = "false", required = false) Boolean isTrendy,
+            @RequestParam(value = "isPopular", defaultValue = "false", required = false) Boolean isPopular,
+            @RequestParam(value = "isTop", defaultValue = "false", required = false) Boolean isTop
+    ) {
+        return sendPostService.getByCategory(category, page, size, isNew, isTrendy, isPopular, isTop);
     }
 }
