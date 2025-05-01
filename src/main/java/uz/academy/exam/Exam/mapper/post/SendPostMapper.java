@@ -2,12 +2,15 @@ package uz.academy.exam.Exam.mapper.post;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import uz.academy.exam.Exam.mapper.UserMapper;
 import uz.academy.exam.Exam.mapper.attachment.ImageAttachmentMapper;
 import uz.academy.exam.Exam.model.entity.user.User;
 import uz.academy.exam.Exam.model.entity.attachment.ImageAttachment;
 import uz.academy.exam.Exam.model.entity.post.SendPost;
 import uz.academy.exam.Exam.model.preview.SendPostPreview;
 import uz.academy.exam.Exam.model.preview.UserPreview;
+import uz.academy.exam.Exam.model.response.SendPostPageResponseAll;
+import uz.academy.exam.Exam.model.response.SendPostPreviewForAll;
 import uz.academy.exam.Exam.model.response.post.SendPostPageResponseOwn;
 import uz.academy.exam.Exam.model.response.post.SendPostResponse;
 
@@ -18,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SendPostMapper {
     private final ImageAttachmentMapper imageAttachmentMapper;
+    private final UserMapper userMapper;
 
     public SendPostPageResponseOwn toSendPostPageResponse(List<SendPost> content, long totalElements) {
         return SendPostPageResponseOwn.builder()
@@ -57,6 +61,28 @@ public class SendPostMapper {
                         .firstname(owner.getFirstName())
                         .joinedAt(LocalDateTime.now())
                         .build())
+                .image(imageAttachmentMapper.toImageAttachmentResponse(sendPost.getImage()))
+                .build();
+    }
+
+    public SendPostPageResponseAll toSendPostPageResponseForAll(List<SendPost> content, long totalItems) {
+        return SendPostPageResponseAll.builder()
+                .totalElements(totalItems)
+                .content(toSendPostPewviewForAllList(content))
+                .last(false)
+                .build();
+    }
+
+    private List<SendPostPreviewForAll> toSendPostPewviewForAllList(List<SendPost> content) {
+        return content.stream().map(this::toSendPostPreviewForAll).toList();
+    }
+
+    private SendPostPreviewForAll toSendPostPreviewForAll(SendPost sendPost) {
+        return SendPostPreviewForAll.builder()
+                .id(sendPost.getId())
+                .title(sendPost.getTitle())
+                .body(sendPost.getPostBody())
+                .owner(userMapper.toUserPreview(sendPost.getOwner()))
                 .image(imageAttachmentMapper.toImageAttachmentResponse(sendPost.getImage()))
                 .build();
     }

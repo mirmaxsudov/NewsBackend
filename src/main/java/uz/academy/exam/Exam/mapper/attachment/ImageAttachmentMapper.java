@@ -15,7 +15,7 @@ public class ImageAttachmentMapper {
         return ImageAttachmentResponse.builder()
                 .width(image.getWidth() == null ? 0 : image.getWidth())
                 .height(image.getHeight() == null ? 0 : image.getHeight())
-                .url(image.getFileUrl())
+                .url("http://localhost:8081/api/v1/attachment/" + image.getId())
                 .downloadUrl(image.getFileUrl())
                 .extension(image.getExtension())
                 .id(image.getId())
