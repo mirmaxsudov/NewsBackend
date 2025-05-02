@@ -32,13 +32,11 @@ import uz.academy.exam.Exam.service.base.AttachmentService;
 import uz.academy.exam.Exam.service.base.UserService;
 import uz.academy.exam.Exam.service.base.post.SendPostService;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ISendPostService implements SendPostService {
     private final SendPostRepository sendPostRepository;
     private final AttachmentService attachmentService;
@@ -251,6 +249,7 @@ public class ISendPostService implements SendPostService {
         int totalPages = (int) Math.ceil((double) totalElements / size);
 
         SendPostPageResponseAll dto = sendPostMapper.toSendPostPageResponseForAll(posts, totalElements);
+        dto.setTotalPages(totalPages);
 
         return ResponseEntity.ok(ApiResponse.<SendPostPageResponseAll>builder()
                 .success(true)
